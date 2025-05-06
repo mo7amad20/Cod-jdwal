@@ -3,61 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مولد جدول HTML</title>
+    <title>مولد جدول HTML من نص</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+        /* Reset وتنسيقات عامة */
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
-        .container {
-            background: white;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
             color: #333;
-            text-align: center;
+            line-height: 1.6;
+            padding: 20px;
         }
+        
+        /* تنسيقات الحاوية الرئيسية */
+        .container {
+            background: #ffffff;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* تنسيقات العنوان */
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        /* تنسيقات منطقة التعليمات */
+        .instructions {
+            background: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-right: 4px solid #3498db;
+        }
+        
+        .instructions p {
+            margin-bottom: 8px;
+        }
+        
+        .instructions p:first-child {
+            font-weight: bold;
+            color: #2980b9;
+        }
+        
+        /* تنسيقات حقل الإدخال */
         textarea {
             width: 100%;
-            height: 150px;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            height: 180px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
             font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
         }
+        
+        textarea:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* تنسيقات الأزرار */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
         button {
-            background: #4CAF50;
+            background: #3498db;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 12px 24px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
-            margin: 5px;
+            font-weight: 500;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 120px;
         }
+        
         button:hover {
-            background: #45a049;
+            background: #2980b9;
+            transform: translateY(-2px);
         }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:nth-child(2) {
+            background: #2ecc71;
+        }
+        
+        button:nth-child(2):hover {
+            background: #27ae60;
+        }
+        
+        button:nth-child(3) {
+            background: #e74c3c;
+        }
+        
+        button:nth-child(3):hover {
+            background: #c0392b;
+        }
+        
+        /* تنسيقات منطقة الإخراج */
         #output {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px dashed #ccc;
+            margin-top: 25px;
+            padding: 20px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
             background: #f9f9f9;
             white-space: pre-wrap;
-            font-family: monospace;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            min-height: 100px;
+            overflow-x: auto;
         }
-        .instructions {
-            background: #e3f2fd;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
+        
+        /* تأثيرات للتفاعل */
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s;
+            z-index: 1000;
+        }
+        
+        .success-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* تنسيقات للجوال */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -72,7 +186,7 @@
         
         <textarea id="textInput" placeholder="الصق النص هنا..."></textarea>
         
-        <div>
+        <div class="button-group">
             <button onclick="generateHTML()">إنشاء جدول HTML</button>
             <button onclick="copyToClipboard()">نسخ الكود</button>
             <button onclick="clearAll()">مسح الكل</button>
@@ -81,11 +195,23 @@
         <div id="output">ستظهر أكواد HTML هنا...</div>
     </div>
 
+    <div id="successMessage" class="success-message">تم نسخ كود HTML بنجاح!</div>
+
     <script>
         function generateHTML() {
             const inputText = document.getElementById("textInput").value;
             const lines = inputText.split('\n');
             let htmlCode = '';
+            
+            // بداية جدول HTML
+            htmlCode += '&lt;table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; margin: 20px 0;"&gt;\n';
+            htmlCode += '  &lt;thead&gt;\n';
+            htmlCode += '    &lt;tr style="background-color: #f2f2f2;"&gt;\n';
+            htmlCode += '      &lt;th style="text-align: right; padding: 12px;"&gt;الحدث&lt;/th&gt;\n';
+            htmlCode += '      &lt;th style="text-align: center; padding: 12px;"&gt;التاريخ&lt;/th&gt;\n';
+            htmlCode += '    &lt;/tr&gt;\n';
+            htmlCode += '  &lt;/thead&gt;\n';
+            htmlCode += '  &lt;tbody&gt;\n';
             
             for (const line of lines) {
                 if (line.trim() === '') continue;
@@ -95,25 +221,55 @@
                 
                 if (dateMatch) {
                     const date = dateMatch[0];
-                    const text =
-               line.replace(date, '').trim();
-                    htmlCode += `&lt;tr&gt;\n    &lt;td&gt;${text}&lt;/td&gt;\n    &lt;td&gt;${date}&lt;/td&gt;\n&lt;/tr&gt;\n`;
+                    const text = line.replace(date, '').trim();
+                    
+                    htmlCode += '    &lt;tr&gt;\n';
+                    htmlCode += `      &lt;td style="text-align: right; padding: 10px;"&gt;${text}&lt;/td&gt;\n`;
+                    htmlCode += `      &lt;td style="text-align: center; padding: 10px;"&gt;${date}&lt;/td&gt;\n`;
+                    htmlCode += '    &lt;/tr&gt;\n';
                 }
             }
+            
+            // نهاية جدول HTML
+            htmlCode += '  &lt;/tbody&gt;\n';
+            htmlCode += '&lt;/table&gt;\n';
             
             document.getElementById("output").innerHTML = htmlCode;
         }
         
         function copyToClipboard() {
             const outputText = document.getElementById("output").textContent;
+            
+            if (!outputText || outputText === 'ستظهر أكواد HTML هنا...') {
+                showMessage('لا يوجد محتوى للنسخ!', 'error');
+                return;
+            }
+            
             navigator.clipboard.writeText(outputText)
-                .then(() => alert("تم نسخ كود HTML بنجاح!"))
-                .catch(err => alert("حدث خطأ أثناء النسخ: " + err));
+                .then(() => showMessage('تم نسخ كود HTML بنجاح!', 'success'))
+                .catch(err => showMessage('حدث خطأ أثناء النسخ: ' + err, 'error'));
         }
         
         function clearAll() {
             document.getElementById("textInput").value = '';
             document.getElementById("output").textContent = 'ستظهر أكواد HTML هنا...';
+        }
+        
+        function showMessage(message, type) {
+            const msgElement = document.getElementById("successMessage");
+            msgElement.textContent = message;
+            
+            if (type === 'error') {
+                msgElement.style.background = '#e74c3c';
+            } else {
+                msgElement.style.background = '#2ecc71';
+            }
+            
+            msgElement.classList.add('show');
+            
+            setTimeout(() => {
+                msgElement.classList.remove('show');
+            }, 3000);
         }
     </script>
 </body>
