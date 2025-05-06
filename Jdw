@@ -1,1 +1,120 @@
-.
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد جدول HTML</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            background: #f9f9f9;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>مولد جدول HTML من نص</h1>
+        
+        <div class="instructions">
+            <p>✍️ أدخل النص (كل سطر = حدث وتاريخ):</p>
+            <p>مثال:<br>المفقودة 20/4/2025<br>استهلاك تراكمي 30/4/2025</p>
+        </div>
+        
+        <textarea id="textInput" placeholder="الصق النص هنا..."></textarea>
+        
+        <div>
+            <button onclick="generateHTML()">إنشاء جدول HTML</button>
+            <button onclick="copyToClipboard()">نسخ الكود</button>
+            <button onclick="clearAll()">مسح الكل</button>
+        </div>
+        
+        <div id="output">ستظهر أكواد HTML هنا...</div>
+    </div>
+
+    <script>
+        function generateHTML() {
+            const inputText = document.getElementById("textInput").value;
+            const lines = inputText.split('\n');
+            let htmlCode = '';
+            
+            for (const line of lines) {
+                if (line.trim() === '') continue;
+                
+                // استخراج التاريخ (يدعم xx/xx/xxxx أو xx-xx-xxxx)
+                const dateMatch = line.match(/(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/);
+                
+                if (dateMatch) {
+                    const date = dateMatch[0];
+                    const text =
+               line.replace(date, '').trim();
+                    htmlCode += `&lt;tr&gt;\n    &lt;td&gt;${text}&lt;/td&gt;\n    &lt;td&gt;${date}&lt;/td&gt;\n&lt;/tr&gt;\n`;
+                }
+            }
+            
+            document.getElementById("output").innerHTML = htmlCode;
+        }
+        
+        function copyToClipboard() {
+            const outputText = document.getElementById("output").textContent;
+            navigator.clipboard.writeText(outputText)
+                .then(() => alert("تم نسخ كود HTML بنجاح!"))
+                .catch(err => alert("حدث خطأ أثناء النسخ: " + err));
+        }
+        
+        function clearAll() {
+            document.getElementById("textInput").value = '';
+            document.getElementById("output").textContent = 'ستظهر أكواد HTML هنا...';
+        }
+    </script>
+</body>
+</html>
