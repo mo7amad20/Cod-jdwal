@@ -124,17 +124,43 @@
         }
         
         /* تنسيقات منطقة الإخراج */
-        #output {
+        #output-container {
             margin-top: 25px;
-            padding: 20px;
             border: 2px dashed #bdc3c7;
             border-radius: 8px;
             background: #f9f9f9;
+            position: relative;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        #output {
+            padding: 20px;
             white-space: pre-wrap;
             font-family: 'Courier New', Courier, monospace;
             font-size: 14px;
             min-height: 100px;
             overflow-x: auto;
+        }
+        
+        /* شريط التمرير المخصص */
+        #output-container::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        #output-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        #output-container::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 6px;
+            border: 3px solid #f1f1f1;
+        }
+        
+        #output-container::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
         }
         
         /* تأثيرات للتفاعل */
@@ -158,6 +184,26 @@
             opacity: 1;
         }
         
+        /* زر النسخ الكامل */
+        .copy-all-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(52, 152, 219, 0.9);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        
+        .copy-all-btn:hover {
+            background: rgba(41, 128, 185, 0.9);
+        }
+        
         /* تنسيقات للجوال */
         @media (max-width: 600px) {
             .container {
@@ -172,6 +218,10 @@
                 padding: 10px 15px;
                 font-size: 14px;
             }
+            
+            #output-container {
+                max-height: 300px;
+            }
         }
     </style>
 </head>
@@ -182,6 +232,7 @@
         <div class="instructions">
             <p>✍️ أدخل النص (كل سطر = حدث وتاريخ):</p>
             <p>مثال:<br>المفقودة 20/4/2025<br>استهلاك تراكمي 30/4/2025</p>
+            <p>يمكنك إدخال عدد غير محدود من الأسطر وسيتم معالجتها جميعاً</p>
         </div>
         
         <textarea id="textInput" placeholder="الصق النص هنا..."></textarea>
@@ -192,7 +243,10 @@
             <button onclick="clearAll()">مسح الكل</button>
         </div>
         
-        <div id="output">ستظهر أكواد HTML هنا...</div>
+        <div id="output-container">
+            <button class="copy-all-btn" onclick="copyAllOutput()">نسخ الكل</button>
+            <div id="output">ستظهر أكواد HTML هنا...</div>
+        </div>
     </div>
 
     <div id="successMessage" class="success-message">تم نسخ كود HTML بنجاح!</div>
@@ -216,8 +270,8 @@
             for (const line of lines) {
                 if (line.trim() === '') continue;
                 
-                // استخراج التاريخ (يدعم xx/xx/xxxx أو xx-xx-xxxx)
-                const dateMatch = line.match(/(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/);
+                // استخراج التاريخ (يدعم xx/xx/xxxx أو xx-xx-xxxx أو xx.xx.xxxx)
+                const dateMatch = line.match(/(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/);
                 
                 if (dateMatch) {
                     const date = dateMatch[0];
@@ -227,6 +281,11 @@
                     htmlCode += `      &lt;td style="text-align: right; padding: 10px;"&gt;${text}&lt;/td&gt;\n`;
                     htmlCode += `      &lt;td style="text-align: center; padding: 10px;"&gt;${date}&lt;/td&gt;\n`;
                     htmlCode += '    &lt;/tr&gt;\n';
+                } else {
+                    // إذا لم يتم العثور على تاريخ، نضيف السطر كاملاً في عمود الحدث
+                    htmlCode += '    &lt;tr&gt;\n';
+                    htmlCode += `      &lt;td style="text-align: right; padding: 10px;" colspan="2"&gt;${line.trim()}&lt;/td&gt;\n`;
+                    htmlCode += '    &lt;/tr&gt;\n';
                 }
             }
             
@@ -235,6 +294,10 @@
             htmlCode += '&lt;/table&gt;\n';
             
             document.getElementById("output").innerHTML = htmlCode;
+            
+            // التمرير إلى الأسفل لعرض النتيجة
+            const outputContainer = document.getElementById("output-container");
+            outputContainer.scrollTop = outputContainer.scrollHeight;
         }
         
         function copyToClipboard() {
@@ -250,9 +313,13 @@
                 .catch(err => showMessage('حدث خطأ أثناء النسخ: ' + err, 'error'));
         }
         
+        function copyAllOutput() {
+            copyToClipboard();
+        }
+        
         function clearAll() {
             document.getElementById("textInput").value = '';
-            document.getElementById("output").textContent = 'ستظهر أكواد HTML هنا...';
+            document.getElementById("output").innerHTML = 'ستظهر أكواد HTML هنا...';
         }
         
         function showMessage(message, type) {
@@ -271,6 +338,17 @@
                 msgElement.classList.remove('show');
             }, 3000);
         }
+        
+        // تمكين التمرير السلس
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById("textInput");
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.shiftKey) {
+                    e.preventDefault();
+                    this.value += '\n';
+                }
+            });
+        });
     </script>
 </body>
 </html>
